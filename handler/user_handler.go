@@ -10,8 +10,7 @@ import (
 )
 
 func GetExpense(c *gin.Context) {
-
-
+	
 
 	
 }
@@ -33,10 +32,21 @@ func CreateExpense(c *gin.Context){
 	}
 
 	
+}
 
+func CreateUser(c *gin.Context){
 
+	var newUser *models.User
 
-	
+	err := c.BindJSON(&newUser)
+	if err != nil{
+		c.JSON(http.StatusBadRequest,err)
+	}
+
+	config.DB.Create(&newUser)
+	if err != nil{
+		c.JSON(http.StatusBadRequest,err)
+	}
 }
 
 	

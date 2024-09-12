@@ -2,15 +2,16 @@ package main
 
 import (
 	"example/connecting/config"
-	
-
-	"github.com/gin-gonic/gin"
+	"example/connecting/routes"
 )
 
 
 func main() {
-	r := gin.Default()
+	
 	config.ConnectDB()
+	routes.Routes()
+	
 
-	r.Run(":8080") 
+
+	
 }
