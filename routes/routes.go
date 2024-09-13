@@ -9,7 +9,11 @@ func Routes() *gin.Engine {
 	router := gin.Default()
 
 	router.POST("/add", handler.CreateExpense)
-	router.POST("/createUser", handler.CreateUser)
+	router.POST("/create", handler.CreateUser)
+	router.GET("/all", handler.GetAllExpense)
+	router.GET("/expense/:id", handler.GetExpenseByID)
+	router.PUT("/update/:id",handler.UpdateAmount)
+	router.DELETE("",)
 
 	router.Run("localhost:8080")
 
