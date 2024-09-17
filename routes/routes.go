@@ -12,8 +12,8 @@ func Routes() *gin.Engine {
 	router.POST("/create", handler.CreateUser)
 	router.GET("/all", handler.GetAllExpense)
 	router.GET("/expense/:id", handler.GetExpenseByID)
-	router.PUT("/update/:id",handler.UpdateAmount)
-	router.DELETE("",)
+	router.PUT("/update/:id", handler.UpdateAmount)
+	router.DELETE("delete/:id",handler.DeleteExpense)
 
 	router.Run("localhost:8080")
 

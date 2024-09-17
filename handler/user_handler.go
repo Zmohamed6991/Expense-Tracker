@@ -16,7 +16,7 @@ func GetAllExpense(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	c.JSON(200, expenses)
+	c.JSON(http.StatusCreated, expenses)
 }
 
 func GetExpenseByID(c *gin.Context){
@@ -47,7 +47,7 @@ func CreateExpense(c *gin.Context){
 		c.JSON(http.StatusBadRequest, err)
 	}
 
-	c.JSON(http.StatusCreated, "Success")
+	c.JSON(http.StatusCreated, AddExpense)
 }
 
 func CreateUser(c *gin.Context){
@@ -72,25 +72,41 @@ func UpdateAmount(c *gin.Context) {
 	// get id
 	id := c.Param("id")
 
-	//get data off req body
-	err := c.BindJSON(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	//create a small struct to bind
+	var input struct {
+		Amount float64 `json:"amount"`
 	}
-	//find post were updating 
+
+	//BIND
+	if err := c.ShouldBindJSON(&input);err != nil {
+		c.JSON(http.StatusBadRequest, err)
+	}
+	//find post with id were updating 
 	var expense models.Expenses
 	if err := config.DB.Find(&expense, id); err != nil{
 		c.JSON(http.StatusBadRequest, err)
 	}
+	expense.Amount = input.Amount
 	
 	// update it
-	if err := config.DB.Model(&expense).Updates(models.Expenses{
-		Amount: expense.Amount,
-	}); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+	if err := config.DB.Save(&expense); err != nil {
+		c.JSON(http.StatusNotImplemented, err)
 	}
+	c.JSON(http.StatusCreated, expense.Amount)
 }
 
 func DeleteExpense(c *gin.Context){
+	id := c.Param("id")
+
+	if err := c.BindJSON(id); err != nil {
+		c.JSON(http.StatusBadRequest, err)
+	}
+
+	var remove models.Expenses
+	if err := config.DB.Delete(&remove, id); err != nil{
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"deleted": "Expense removed"})
 
 }
