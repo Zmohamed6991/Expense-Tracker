@@ -1,11 +1,11 @@
 //where to connect the database
-
 package config
 
 import (
 	"example/connecting/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	
 )
 
 var DB *gorm.DB
@@ -16,7 +16,7 @@ func ConnectDB() {
 		panic(err)
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Expenses{}, &models.Categories{})
+	db.AutoMigrate(&models.User{}, &models.Expenses{})
 	
 	
 	DB = db
