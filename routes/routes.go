@@ -16,7 +16,6 @@ func Routes() *gin.Engine {
 
 	// user 
 	router.POST("/salary", handler.UserSalary)
-	router.POST("/create", handler.CreateUser)
 
 	router.Run("localhost:8080")
 

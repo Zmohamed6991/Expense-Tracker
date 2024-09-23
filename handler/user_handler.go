@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
 func UserSalary(c *gin.Context) {
 	var Salary models.Salary
 
@@ -25,7 +26,6 @@ func UserSalary(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, Salary)
-
 }
 
 func GetAllExpense(c *gin.Context) {
@@ -65,7 +65,6 @@ func GetExpenseByID(c *gin.Context) {
 	if err := config.DB.First(&expense, id); err != nil {
 		c.JSON(http.StatusNotFound, err)
 	}
-
 }
 
 func CreateExpense(c *gin.Context) {
@@ -131,22 +130,6 @@ func CreateExpense(c *gin.Context) {
 		"Total amount of expenses": Total.ExpenseAmounts,
 		"Remaining salary":         Salary.RemainingSalary,
 	})
-}
-
-func CreateUser(c *gin.Context) {
-	var newUser []models.User
-
-	err := c.BindJSON(&newUser)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
-	}
-
-	config.DB.Create(&newUser)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-	}
-
-	c.JSON(http.StatusCreated, gin.H{"message": "Success"})
 }
 
 func UpdateAmount(c *gin.Context) {
