@@ -3,12 +3,33 @@ package handler
 import (
 	"example/connecting/config"
 	"example/connecting/models"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+func UserSalary(c *gin.Context) {
+	var Salary models.Salary
+
+	err := c.BindJSON(&Salary)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"err": "invalid data"})
+		return
+	}
+
+	Salary.RemainingSalary = Salary.MonthlySalary
+
+	if err := config.DB.Create(&Salary); err != nil {
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	c.JSON(http.StatusCreated, Salary)
+
+}
+
 func GetAllExpense(c *gin.Context) {
+
 	var expenses []models.Expenses
 
 	err := config.DB.Find(&expenses)
@@ -16,97 +37,230 @@ func GetAllExpense(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
+	if len(expenses) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No expenses available"})
+		return
+	
+	}
+
 	c.JSON(http.StatusCreated, expenses)
+
+	var Salary models.Salary
+	if err := config.DB.First(&Salary).Error; err != nil{
+		c.JSON(http.StatusNotFound, gin.H{"error": "unable to retrieve monthly salary"})
+	}
+
+	c.JSON(http.StatusFound, Salary)	
 }
 
-func GetExpenseByID(c *gin.Context){
+func GetExpenseByID(c *gin.Context) {
 	id := c.Param("id")
 
 	err := c.BindJSON(id)
-	if err != nil{
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 	}
 
 	var expense models.Expenses
-	if err := config.DB.First(&expense, id); err != nil{
+	if err := config.DB.First(&expense, id); err != nil {
 		c.JSON(http.StatusNotFound, err)
 	}
-	
+
 }
 
-func CreateExpense(c *gin.Context){
-	var AddExpense models.Expenses
-	
-	err := c.BindJSON(&AddExpense)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"err": "invalid data"})
+func CreateExpense(c *gin.Context) {
+	var Salary models.Salary
+	if err := config.DB.First(&Salary).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Salary not found"})
 		return
 	}
-		
-	if err := config.DB.Create(&AddExpense); err != nil {
-		c.JSON(http.StatusBadRequest, err)
+
+	var AddExpense models.Expenses
+	if err := c.BindJSON(&AddExpense); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
+		return
 	}
 
-	c.JSON(http.StatusCreated, AddExpense)
+	if Salary.MonthlySalary == 0 || Salary.RemainingSalary == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No remaining salary available, input salary"})
+		return
+	}
+
+	var Total models.Total
+	if err := config.DB.Create(&Total).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Error creating or fetching total"})
+		return
+	}
+
+	// Add the new expense to the list of expenses
+	Total.ExpenseAmounts = append(Total.ExpenseAmounts, AddExpense.Amount)
+
+	var total float64
+	for _, expense := range Total.ExpenseAmounts {
+		total += expense
+	}
+
+	// Check if the expense exceeds the remaining salary
+	if total > Salary.RemainingSalary {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Expense exceeds remaining salary"})
+		return
+	}
+
+	// Add the new expense to the Expenses table
+	if err := config.DB.Create(&AddExpense).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error adding expense"})
+		return
+	}
+
+	// Update the remaining salary by subtracting the expense amount
+	Salary.RemainingSalary -= AddExpense.Amount
+	if err := config.DB.Save(&Salary).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error updating remaining salary"})
+		return
+	}
+
+	// Save the updated total
+	if err := config.DB.Save(&Total).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Error saving total"})
+		return
+	}
+
+	// Return the added expense, total expenses, and remaining salary
+	c.JSON(http.StatusCreated, gin.H{
+		"Expense added":            AddExpense,
+		"Total amount of expenses": Total.ExpenseAmounts,
+		"Remaining salary":         Salary.RemainingSalary,
+	})
 }
 
-func CreateUser(c *gin.Context){
+func CreateUser(c *gin.Context) {
 	var newUser []models.User
 
 	err := c.BindJSON(&newUser)
-	if err != nil{
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": ""})
 	}
 
 	config.DB.Create(&newUser)
-	if err != nil{
-		c.JSON(http.StatusBadRequest,err)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
 	}
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Success"})
 }
 
-	
-
 func UpdateAmount(c *gin.Context) {
-	// get id
-	id := c.Param("id")
+    // Get the expense ID
+    id := c.Param("id")
 
-	//create a small struct to bind
-	var input struct {
-		Amount float64 `json:"amount"`
+    // Create a struct to bind the input
+    var input struct {
+        Amount float64 `json:"amount"`
+    }
+
+    // Bind the input JSON
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input data"})
+        return
+    }
+
+	var expenses []models.Expenses
+
+	err := config.DB.Find(&expenses)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
 	}
 
-	//BIND
-	if err := c.ShouldBindJSON(&input);err != nil {
-		c.JSON(http.StatusBadRequest, err)
-	}
-	//find post with id were updating 
-	var expense models.Expenses
-	if err := config.DB.Find(&expense, id); err != nil{
-		c.JSON(http.StatusBadRequest, err)
-	}
-	expense.Amount = input.Amount
+	if len(expenses) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No expenses available to update"})
+		return
 	
-	// update it
-	if err := config.DB.Save(&expense); err != nil {
-		c.JSON(http.StatusNotImplemented, err)
 	}
-	c.JSON(http.StatusCreated, expense.Amount)
+
+    // Find the expense we are updating
+    var expense models.Expenses
+    if err := config.DB.First(&expense, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Expense not found"})
+        return
+    }
+
+    // Find the salary
+    var salary models.Salary
+    if err := config.DB.First(&salary).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Salary not found"})
+        return
+    }
+
+    // Calculate the difference between the old and new expense amount
+    expenseDifference := input.Amount - expense.Amount
+
+    // Check if the new expense exceeds the remaining salary
+    if expenseDifference > salary.RemainingSalary {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Expense exceeds remaining salary"})
+        return
+    }
+
+    // Update the expense amount
+    expense.Amount = input.Amount
+
+    if err := config.DB.Save(&expense).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update expense"})
+        return
+    }
+
+    // Update the remaining salary by subtracting the expense difference
+    salary.RemainingSalary -= expenseDifference
+    if err := config.DB.Save(&salary).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update remaining salary"})
+        return
+    }
+
+    // Return the updated expense and remaining salary
+    c.JSON(http.StatusOK, gin.H{
+        "updated expense":        expense.Amount,
+		"updated expense name": expense.ExpenseName,
+        "remaining salary":       salary.RemainingSalary,
+    })
 }
 
-func DeleteExpense(c *gin.Context){
+func DeleteExpense(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := c.BindJSON(id); err != nil {
 		c.JSON(http.StatusBadRequest, err)
 	}
 
-	var remove models.Expenses
-	if err := config.DB.Delete(&remove, id); err != nil{
+	var expenses []models.Expenses
+
+	err := config.DB.Find(&expenses)
+	if err != nil {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"deleted": "Expense removed"})
+	if len(expenses) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No expenses available"})
+		return
+	}
 
+	var remove models.Expenses
+	if err := config.DB.Delete(&remove, id); err != nil {
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	var Salary models.Salary
+	if err := config.DB.First(&Salary).Error; err != nil{
+		c.JSON(http.StatusNotFound, gin.H{"error": "unable to retrieve monthly salary"})
+	}
+
+	remove.Amount -= Salary.RemainingSalary
+	if err := config.DB.Save(&Salary).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update remaining salary"})
+        return
+    }
+
+	c.JSON(http.StatusCreated, gin.H{
+		"deleted": remove.ExpenseName,
+		"removed amount": remove.Amount,
+		"remaining salary": Salary.RemainingSalary,
+	})
 }
