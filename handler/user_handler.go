@@ -79,6 +79,16 @@ func CreateExpense(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
 		return
 	}
+	
+	if AddExpense.Amount <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+
+	if AddExpense.ExpenseName == "" || AddExpense.Category == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error":"no input"})
+		return
+	}
 
 	if Salary.MonthlySalary == 0 || Salary.RemainingSalary == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No remaining salary available, input salary"})
@@ -207,43 +217,36 @@ func UpdateAmount(c *gin.Context) {
 }
 
 func DeleteExpense(c *gin.Context) {
-	id := c.Param("id")
+    id := c.Param("id")
+	
+    var remove models.Expenses
+    if err := config.DB.First(&remove, id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Expense not found"})
+        return
+    }
 
-	if err := c.BindJSON(id); err != nil {
-		c.JSON(http.StatusBadRequest, err)
-	}
+    if err := config.DB.Delete(&remove).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete expense"})
+        return
+    }
 
-	var expenses []models.Expenses
+    var Salary models.Salary
+    if err := config.DB.First(&Salary).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Salary record not found"})
+        return
+    }
 
-	err := config.DB.Find(&expenses)
-	if err != nil {
-		c.JSON(http.StatusNotFound, err)
-	}
+    Salary.RemainingSalary += remove.Amount
 
-	if len(expenses) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No expenses available"})
-		return
-	}
-
-	var remove models.Expenses
-	if err := config.DB.Delete(&remove, id); err != nil {
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	var Salary models.Salary
-	if err := config.DB.First(&Salary).Error; err != nil{
-		c.JSON(http.StatusNotFound, gin.H{"error": "unable to retrieve monthly salary"})
-	}
-
-	remove.Amount -= Salary.RemainingSalary
-	if err := config.DB.Save(&Salary).Error; err != nil {
+    if err := config.DB.Save(&Salary).Error; err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update remaining salary"})
         return
     }
 
-	c.JSON(http.StatusCreated, gin.H{
-		"deleted": remove.ExpenseName,
-		"removed amount": remove.Amount,
-		"remaining salary": Salary.RemainingSalary,
-	})
+    c.JSON(http.StatusAccepted, gin.H{
+        "message": "Expense deleted",
+        "expense id": remove.ID,
+        "updated remaining salary": Salary.RemainingSalary,
+    })
 }
+
