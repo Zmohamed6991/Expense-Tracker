@@ -22,7 +22,7 @@ Challenges and Solutions:
  - Challenge 1: Ensuring that expenses do not exceed the remaining salary, and handling cases where users input incorrect data.
  - Solution 1: Implemented data validation using Gin’s bind JSON and custom error handling to provide clear error messages and maintain data consistency.
 
- - Challenge 2: To prevent errors, users must input their monthly salary before entering expenses.
+ - Challenge 2: Users must input their monthly salary before entering expenses to prevent errors.
  - Solution 2: Implemented a check for salary requirements before inputting expenses. An error will be displayed if expenses are entered first.
 
 Results and Impact:
@@ -32,5 +32,6 @@ Links:
 [Live Demo](https://drive.google.com/file/d/1hWUrDZC_jcpqRa5A08EuZS134KdjixD9/view?usp=drive_link)
 [GitHub Repository](https://github.com/Zmohamed6991/Expense-Tracker)
 
+Lessons Learned: Improved skills in backend optimisation and gained experience using RESTful API with GORM for database interaction. For example, retrieving data from the database using gorm first and find.
 
-Lessons Learned: Improved skills in backend optimization and gained experience using RESTful API with GORM for database interaction. 
+
