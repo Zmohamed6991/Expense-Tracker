@@ -25,7 +25,7 @@ func UserSalary(c *gin.Context) {
 		c.JSON(http.StatusNotFound, err)
 	}
 
-	c.JSON(http.StatusCreated, Salary)
+	c.JSON(http.StatusOK, Salary)
 }
 
 func GetAllExpense(c *gin.Context) {
@@ -43,14 +43,14 @@ func GetAllExpense(c *gin.Context) {
 	
 	}
 
-	c.JSON(http.StatusCreated, expenses)
+	c.JSON(http.StatusOK, expenses)
 
 	var Salary models.Salary
 	if err := config.DB.First(&Salary).Error; err != nil{
 		c.JSON(http.StatusNotFound, gin.H{"error": "unable to retrieve monthly salary"})
 	}
 
-	c.JSON(http.StatusFound, Salary)	
+	c.JSON(http.StatusOK, Salary)	
 }
 
 func GetExpenseByID(c *gin.Context) {
@@ -135,7 +135,7 @@ func CreateExpense(c *gin.Context) {
 	}
 
 	// Return the added expense, total expenses, and remaining salary
-	c.JSON(http.StatusCreated, gin.H{
+	c.JSON(http.StatusOK, gin.H{
 		"Expense added":            AddExpense,
 		"Total amount of expenses": Total.ExpenseAmounts,
 		"Remaining salary":         Salary.RemainingSalary,
@@ -218,7 +218,7 @@ func UpdateAmount(c *gin.Context) {
 
 func DeleteExpense(c *gin.Context) {
     id := c.Param("id")
-	
+
     var remove models.Expenses
     if err := config.DB.First(&remove, id).Error; err != nil {
         c.JSON(http.StatusNotFound, gin.H{"error": "Expense not found"})
@@ -243,7 +243,7 @@ func DeleteExpense(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusAccepted, gin.H{
+    c.JSON(http.StatusOK, gin.H{
         "message": "Expense deleted",
         "expense id": remove.ID,
         "updated remaining salary": Salary.RemainingSalary,
