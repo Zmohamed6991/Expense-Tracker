@@ -13,7 +13,7 @@ integrated with GORM for database interaction.
  - Error Handling and Validation: Error handling and data validation to ensure accurate and correct data entry,
 providing clear feedback for invalid inputs using status codes and responding with a JSON response.
 
-Role and Contributions:
+My role:
  - Backend Development: Designed and implemented the backend API using the Gin web framework in Go,
 ensuring efficient routing and integration with the database for salary and expense management features.
  - Database Integration: Integrated GORM for handling database operations, including salary and expense CRUD functionality, ensuring smooth and reliable data storage and retrieval.
