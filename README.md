@@ -32,8 +32,8 @@ Links:
 [Live Demo](https://drive.google.com/file/d/1hWUrDZC_jcpqRa5A08EuZS134KdjixD9/view?usp=drive_link)
 [GitHub Repository](https://github.com/Zmohamed6991/Expense-Tracker)
 
-Lessons Learned: Improved skills in backend optimisation and gained experience using RESTful API with GORM for database interaction. For example, retrieving data from the database using gorm first and find.
-
+Lessons Learned: Improved skills in backend optimisation and gained experience using RESTful API with GORM for database interaction.For example, retrieving data from the database using gorm first and find.
+ 
 Lessons Learned: Improved skills in backend optimisation and gained experience using RESTful API with GORM for database interaction. 
 
 **Full API Documentation**
@@ -73,14 +73,15 @@ Request body example:
 }
 
 Success response with status code 200 OK.
-{
-    "ID": 1,
-    "CreatedAt": "2024-09-24T18:46:49.153877+01:00",
-    "UpdatedAt": "2024-09-24T18:46:49.153877+01:00",
-    "DeletedAt": null,
-    "monthly_salary": 500,
-    "remaining_salary": 500
-}
+
+	{
+	    "ID": 1,
+	    "CreatedAt": "2024-09-24T18:46:49.153877+01:00",
+	    "UpdatedAt": "2024-09-24T18:46:49.153877+01:00",
+	    "DeletedAt": null,
+	    "monthly_salary": 500,
+	    "remaining_salary": 500
+	}	
 
 Error responses:
 - 400 Bad Request: If invalid data is inputted.
@@ -93,28 +94,29 @@ User can start adding their expenses
 Method: POST
 URL: https://localhost:8080/add
 Request Body example:
-{
-    "expense_name": "Netflix",
-    "amount": 9.99,
-    "category": "Entertainment"
-}
+
+		{
+		    "expense_name": "Netflix",
+		    "amount": 9.99,
+		    "category": "Entertainment"
+		}
 
 Success response with status code 200 OK. It also responds with the remaining salary after adding the expense.
  
 
-   "Expense added": {
-        "ID": 2,
-        "CreatedAt": "2024-09-24T18:47:12.8118176+01:00",
-        "UpdatedAt": "2024-09-24T18:47:12.8118176+01:00",
-        "DeletedAt": null,
-        "expense_name": "Netflix",
-        "amount": 9.99,
-        "category": "Entertainment"
-    },
-    "Remaining salary": 90.01,
-    "Total amount of expenses": [
-        9.99
-    ]
+	   "Expense added": {
+	        "ID": 2,
+	        "CreatedAt": "2024-09-24T18:47:12.8118176+01:00",
+	        "UpdatedAt": "2024-09-24T18:47:12.8118176+01:00",
+	        "DeletedAt": null,
+	        "expense_name": "Netflix",
+	        "amount": 9.99,
+	        "category": "Entertainment"
+	    },
+	    "Remaining salary": 90.01,
+	    "Total amount of expenses": [
+	        9.99
+	    ]
 
 
 Error responses:
@@ -139,28 +141,28 @@ Error responses:
 Retrieves all expenses for the user
 Method: GET
 URL: https://localhost:8080/all
-No request body, click send and it will retrieve all expenses in the body. Including the remaining salary. 
+No request body, click send and it will retrieve all expenses in the body, including the remaining salary. 
 
 		
-[
-    {
-        "ID": 1,
-        "CreatedAt": "2024-09-24T18:46:53.983546+01:00",
-        "UpdatedAt": "2024-09-24T18:47:33.613354+01:00",
-        "DeletedAt": null,
-        "expense_name": "rent",
-        "amount": 450,
-        "category": "House Bills"
-    }
-]
-{
-    "ID": 1,
-    "CreatedAt": "2024-09-24T18:46:49.153877+01:00",
-    "UpdatedAt": "2024-09-24T18:47:47.283083+01:00",
-    "DeletedAt": null,
-    "monthly_salary": 500,
-    "remaining_salary": 50.00000000000001
-}
+		[
+		    {
+		        "ID": 1,
+		        "CreatedAt": "2024-09-24T18:46:53.983546+01:00",
+		        "UpdatedAt": "2024-09-24T18:47:33.613354+01:00",
+		        "DeletedAt": null,
+		        "expense_name": "rent",
+		        "amount": 450,
+		        "category": "House Bills"
+		    }
+		]
+		{
+		    "ID": 1,
+		    "CreatedAt": "2024-09-24T18:46:49.153877+01:00",
+		    "UpdatedAt": "2024-09-24T18:47:47.283083+01:00",
+		    "DeletedAt": null,
+		    "monthly_salary": 500,
+		    "remaining_salary": 50.00000000000001
+		}
 
 Success response with status code 200 OK. It also responds with the remaining salary after adding the expense. 
 
@@ -175,21 +177,21 @@ Error response:
 Updates an expense’s amount by its ID
 Method: PUT
 URL: https://localhost:8080/update/:id
-Enter the ID of the expense in the URL then use the request body to update the amount of the expense. 
+Enter the ID of the expense in the URL then use the request body to update the amount of the cost. 
 
 Request Body example: 
 
-{    
-"amount": 450.00
-}
+	{    
+	"amount": 450.00
+	}
 
-Success response with status code 200 OK. With the updated remaining salary, update amount and the name of the expense.
+Success response with status code 200 OK. With the updated remaining salary, update the amount and the name of the expense.
 
-{
-    "remaining salary": 40.010000000000005,
-    "updated expense": 450,
-    "updated expense name": "rent"
-}
+		{
+		    "remaining salary": 40.010000000000005,
+		    "updated expense": 450,
+		    "updated expense name": "rent"
+		}
 
 
 Error response:
@@ -216,11 +218,11 @@ Enter the ID of the expense in the URL then send.
 
 Success response with status code 200 OK. Also with the expense ID, a message to confirm the expense is deleted and the remaining salary is for the user to keep track of.
 
-{
-    "expense id": 2,
-    "message": "Expense deleted",
-    "updated remaining salary": 50.00000000000001
-}
+	{
+	    "expense id": 2,
+	    "message": "Expense deleted",
+	    "updated remaining salary": 50.00000000000001
+	}
 
 Error response:
 404 Status Not Found:
