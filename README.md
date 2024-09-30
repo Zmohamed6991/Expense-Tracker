@@ -33,8 +33,6 @@ Links:
 [GitHub Repository](https://github.com/Zmohamed6991/Expense-Tracker)
 
 Lessons Learned: Improved skills in backend optimisation and gained experience using RESTful API with GORM for database interaction.For example, retrieving data from the database using gorm first and find.
- 
-Lessons Learned: Improved skills in backend optimisation and gained experience using RESTful API with GORM for database interaction. 
 
 **Full API Documentation**
 
